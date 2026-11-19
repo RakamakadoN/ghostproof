@@ -1,0 +1,15 @@
+{
+  "name": "ghostproof",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Evidence-first static bug candidates for JavaScript and TypeScript",
+  "type": "module",
+  "bin": {"ghostproof": "./bin/ghostproof.mjs"},
+  "scripts": {
+    "test": "node --test",
+    "demo": "node ./bin/ghostproof.mjs scan ./examples",
+    "check": "node ./bin/ghostproof.mjs scan ."
+  },
+  "engines": {"node": ">=20"},
+  "license": "MIT"
+}
