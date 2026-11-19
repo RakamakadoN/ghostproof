@@ -63,6 +63,15 @@ The verifier checks pinned fixture SHA-256 hashes **before** executing the bundl
 
 `npm link` adds a local `ghostproof` command. This package is **not published to npm** yet; `npx ghostproof` is not supported.
 
+## Agent Skill for Codex and Claude Code
+
+Ghostproof also ships a portable **Agent Skills** instruction layer; it tells assistants when and how to use this CLI safely. The CLI remains the execution engine. Repository-local entrypoints:
+
+- [Codex: `.agents/skills/ghostproof/SKILL.md`](.agents/skills/ghostproof/SKILL.md)
+- [Claude Code: `.claude/skills/ghostproof/SKILL.md`](.claude/skills/ghostproof/SKILL.md)
+
+To use Ghostproof from other repositories, follow [Agent Skill installation and examples](docs/AGENT_SKILL.md). The skill does not install dependencies, auto-run third-party code, or turn E0 into project proof.
+
 ## Two bounded rules
 
 | Rule | E0 AST signal | E1 built-in mechanism |

@@ -32,3 +32,7 @@ A new `proof` case must have a documented project contract, deterministic before
 The `verify` command accepts **only v0.3 BW001 bundled evidence**. Do not add external program execution or new evidence-level promotion without an explicit safety design and reviewed acceptance tests. When changing bundled fixtures, review and update pinned hashes, test controls, the supported schema, and migration notes together.
 
 External snippets must cite the exact public commit, file and source lines, with license attribution. Start with read-only scanning. Do not publish undisclosed vulnerability allegations based only on an E0 signature.
+
+## Agent Skill changes
+
+Keep `.agents/skills/ghostproof/SKILL.md` and `.claude/skills/ghostproof/SKILL.md` byte-for-byte identical. `npm test` includes an Agent Skill contract suite that checks valid frontmatter, synchronized instructions, documented CLI capabilities, and required evidence boundaries. Do not promise or imply that arbitrary target code is executed or that E0 findings are confirmed.
