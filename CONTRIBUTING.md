@@ -26,3 +26,9 @@ Keep PRs focused and include tested commands and limitations. Do not commit priv
 ## Bundled project proof cases
 
 A new `proof` case must have a documented project contract, deterministic before/after fixtures, the **same test** in both revisions, bounded subprocess execution, SHA-256 source metadata, negative controls, and no external code execution. The public fixture must be intentionally disclosed and not contain private customer code.
+
+## v0.4 verification and external E0 research
+
+The `verify` command accepts **only v0.3 BW001 bundled evidence**. Do not add external program execution or new evidence-level promotion without an explicit safety design and reviewed acceptance tests. When changing bundled fixtures, review and update pinned hashes, test controls, the supported schema, and migration notes together.
+
+External snippets must cite the exact public commit, file and source lines, with license attribution. Start with read-only scanning. Do not publish undisclosed vulnerability allegations based only on an E0 signature.

@@ -19,6 +19,23 @@ test('GP001 supports optional chaining and string-literal member access', () => 
 test('GP001 supports TypeScript callback assertions and type syntax', () => {
   assert.deepEqual(codes('items.forEach((async (x: number) => { await save(x) }) as (x: number) => void)', 'input.ts'), ['GP001']);
 });
+test('GP001 avoids no-await async logging blocks from a pinned real-world case', () => {
+  // Minimized syntactic shape of public android-emulator-runner/src/main.ts
+  // at commit ed009f5318f15b1cf93a191b856c4f1748a2d4c1 (lines 176,184).
+  const source = [
+    'scripts.forEach(async (script: string) => { console.log(script); });',
+    'preEmulatorLaunchScripts?.forEach(async (script: string) => { console.log(script); });',
+  ].join('\n');
+  assert.deepEqual(codes(source, 'main.ts'), []);
+});
+test('GP001 retains async callback that returns a Promise without await', () => {
+  assert.deepEqual(codes('items.forEach(async (item) => { return save(item); });'), ['GP001']);
+  assert.deepEqual(codes('items.forEach(async item => save(item));'), ['GP001']);
+});
+test('GP001 retains async throw without await, and ignores nested unrelated awaits', () => {
+  assert.deepEqual(codes('items.forEach(async item => { throw new Error(String(item)); });'), ['GP001']);
+  assert.deepEqual(codes('items.forEach(async item => { const f = async () => await fetch(item); console.log(item); });'), []);
+});
 test('GP002 identifies async Promise executor', () => {
   assert.deepEqual(codes('new Promise(async (resolve, reject) => { await work(); resolve(); });'), ['GP002']);
 });

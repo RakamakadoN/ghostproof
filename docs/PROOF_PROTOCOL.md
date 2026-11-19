@@ -1,4 +1,4 @@
-# Ghostproof proof protocol v0.3
+# Ghostproof proof protocol v0.4 (with v0.3 bundle compatibility)
 
 This protocol prevents false confidence. A static hit is an observation, not a confirmed defect.
 
@@ -35,3 +35,13 @@ This protocol prevents false confidence. A static hit is an observation, not a c
 ## Reporting templates for external E2/E3 implementations
 
 When external-project E2 support exists, reports should record: environment, exact revision, a minimal deterministic reproduction, expected vs actual behavior, error traces and test results. E3 should record the failing pre-fix and passing post-fix revisions. Until such machinery ships, **do not assert those outcomes**.
+
+## v0.4 BW001 report verification
+
+`ghostproof verify path/to/bw001-evidence.json` performs an **allowlisted re-execution** of the bundled BW001 experiment and compares the full record to the supplied v0.3 JSON report. The built-in fixture file SHA-256 hashes are pinned in code and verified **before** any replay. The JSON file is read as data, never as executable instructions; arbitrary report-supplied paths are ignored. Valid structured results return exit `0`, altered evidence returns `1`, and malformed, oversized or symlinked input returns `2`.
+
+This adds a deterministic consistency and provenance check for the **bundled fixture shipped with Ghostproof**. It does NOT authenticate the report's author, prove an external project's failure, validate arbitrary imported E2/E3 evidence, or substitute for cryptographic signing.
+
+### External pinned E0 study
+
+See [EXTERNAL_E0_STUDY.md](EXTERNAL_E0_STUDY.md) for public commit-pinned source references and a deliberately bounded GP001 precision test. Neither referenced external project has been executed or confirmed to contain a defect in this research.

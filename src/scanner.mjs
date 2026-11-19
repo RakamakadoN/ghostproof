@@ -35,6 +35,36 @@ function isAsyncFunction(node) {
     Boolean(value.modifiers?.some(m => m.kind === ts.SyntaxKind.AsyncKeyword));
 }
 
+/**
+ * An async block with only synchronous statements (such as console.log) does
+ * not demonstrate the forEach completion hazard. Keep E0 candidates when the
+ * callback awaits, throws, or explicitly returns a value/thenable. Expression-
+ * bodied arrows also return a value and remain candidates. This is a bounded
+ * precision heuristic, not type-aware proof of a Promise or an absence of bugs.
+ *
+ * Limitation: a callback that starts unawaited async work and returns void can
+ * be missed; that issue is independent of awaiting the async callback itself.
+ */
+function hasObservableAsyncCompletion(callback) {
+  const fn = unwrapExpression(callback);
+  if (!ts.isArrowFunction(fn) && !ts.isFunctionExpression(fn)) return false;
+  if (!ts.isBlock(fn.body)) return true;
+  let relevant = false;
+  function inspect(node) {
+    if (relevant) return;
+    if (node !== fn.body && ts.isFunctionLike(node)) return; // nested function, different callback
+    if (ts.isAwaitExpression(node) || ts.isThrowStatement(node) ||
+        (ts.isReturnStatement(node) && node.expression) ||
+        (ts.isForOfStatement(node) && node.awaitModifier)) {
+      relevant = true;
+      return;
+    }
+    ts.forEachChild(node, inspect);
+  }
+  inspect(fn.body);
+  return relevant;
+}
+
 function callName(expression) {
   const node = unwrapExpression(expression);
   if (ts.isPropertyAccessExpression(node)) return node.name.text;
@@ -84,7 +114,8 @@ export function analyzeSource(source, relativePath = 'input.js') {
     });
   }
   function visit(node) {
-    if (ts.isCallExpression(node) && callName(node.expression) === 'forEach' && isAsyncFunction(node.arguments[0])) {
+    if (ts.isCallExpression(node) && callName(node.expression) === 'forEach' &&
+        isAsyncFunction(node.arguments[0]) && hasObservableAsyncCompletion(node.arguments[0])) {
       add('GP001', node);
     }
     if (ts.isNewExpression(node) && ts.isIdentifier(node.expression) &&
@@ -160,8 +191,8 @@ export async function scanPath(target, options = {}) {
   findings.sort((a, b) => a.path.localeCompare(b.path) || a.line - b.line || a.column - b.column || a.ruleId.localeCompare(b.ruleId));
   summary.candidates = findings.length;
   return {
-    schemaVersion: '0.3',
-    tool: { name: 'ghostproof', version: '0.3.0', engine: 'typescript-ast' },
+    schemaVersion: '0.4',
+    tool: { name: 'ghostproof', version: '0.4.0', engine: 'typescript-ast' },
     target: root,
     summary,
     findings,
