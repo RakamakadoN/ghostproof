@@ -11,3 +11,5 @@ Ghostproof v0.2 is a preview, not a complete security audit.
 - File size limits, directory exclusions and skipped symlinks reduce risk but are not a filesystem sandbox. Do not run with elevated privileges on actively hostile or concurrently modified directory trees.
 
 Please report vulnerabilities in Ghostproof privately using GitHub private vulnerability reporting, if enabled, or contact the maintainer privately. Never post confidential source, secrets or undisclosed exploits as public GitHub issues.
+
+The `proof` command currently accepts only the explicitly bundled `BW001` sample. It must not execute arbitrary user-supplied repositories or paths. Evidence output is created only when `--output PATH` is supplied and refuses to overwrite existing files; review any evidence before sharing it. A subprocess timeout is **not** a general-purpose adversarial sandbox.

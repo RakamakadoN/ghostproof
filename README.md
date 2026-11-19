@@ -9,11 +9,11 @@
 [![CI](https://github.com/RakamakadoN/ghostproof/actions/workflows/ci.yml/badge.svg)](https://github.com/RakamakadoN/ghostproof/actions/workflows/ci.yml)
 ![Node 20+](https://img.shields.io/badge/Node.js-20%2B-339933)
 ![MIT](https://img.shields.io/badge/license-MIT-blue)
-![Preview](https://img.shields.io/badge/status-v0.2%20preview-orange)
+![Preview](https://img.shields.io/badge/status-v0.3%20preview-orange)
 
 </div>
 
-> **Early preview v0.2.** Scan results are **E0 candidates**, not confirmed project bugs. Two bundled E1 experiments demonstrate language/runtime mechanisms, not real project defects. E2/E3 verification is planned, not shipped.
+> **Early preview v0.3.** Scans of your code return **E0 candidates**, not confirmed bugs. E1 runs two repository-owned mechanism fixtures. The new `proof BW001` command demonstrates E2/E3 red/green evidence on an intentionally defective **bundled sample project** only. No arbitrary external-project E2/E3 verification is shipped.
 
 ## Quick start
 
@@ -26,12 +26,13 @@ npm ci --ignore-scripts
 npm test
 npm run demo
 npm run experiment
+npm run proof
 ```
 
 Demo summary:
 
 ```text
-Ghostproof 0.2 [TypeScript AST] | 2 files scanned | 2 E0 candidates | 0 confirmed
+Ghostproof 0.3 [TypeScript AST] | 2 files scanned | 2 E0 candidates | 0 confirmed
 ```
 
 Local scan of your project:
@@ -73,10 +74,22 @@ This pattern is **not automatically a bug**: asynchronous work may intentionally
 
 - **E0** — candidate: source location, AST signal, rule ID, explanation and fingerprint (**implemented**).
 - **E1** — isolated runtime mechanism observed in a repository-owned fixture (**implemented for GP001/GP002**).
-- **E2** — a real affected project fails in a reproducible test (**roadmap**).
-- **E3** — a regression test fails before and passes after the actual fix (**roadmap**).
+- **E2** — the bundled `BW001` sample violates a documented completion contract (external projects: **roadmap**).
+- **E3** — one unchanged bundled sample test fails before and passes after a fix (external projects: **roadmap**).
 
 See [Proof Protocol](docs/PROOF_PROTOCOL.md). An E1 demonstration never automatically promotes a project E0 finding to E2.
+
+## E2/E3 sample project proof
+
+```bash
+node ./bin/ghostproof.mjs proof BW001
+node ./bin/ghostproof.mjs proof BW001 --format json
+node ./bin/ghostproof.mjs proof BW001 --output ./evidence.json
+```
+
+`BW001` uses a repository-owned batch-writer sample with a known completion contract. The pre-fix variant returns early; the post-fix variant waits for all records. The **same contract test** checks both. JSON includes expected/actual results, SHA-256 hashes of test and variants, and Node/runtime metadata. `--output` writes JSON only to an explicitly selected path and refuses overwriting an existing file.
+
+**Important:** this is an intentionally defective *sample*, not verification of bugs in a third-party repository. The `proof` command rejects arbitrary paths and runs only allowlisted code.
 
 ## How it works
 
@@ -87,18 +100,18 @@ The JSON scan report includes parser identity, findings, fingerprints, file-coun
 ## Safety and limitations
 
 - Read-only scanning: target files are not imported, built, compiled or executed.
-- `experiment` executes **only** built-in fixture IDs GP001/GP002 in 2-second bounded subprocesses; arbitrary paths are rejected.
-- No telemetry, cloud API calls, automatic fixes, or project-specific regression generation.
+- `experiment` executes only built-in GP001/GP002 fixtures; `proof` executes only the bundled BW001 project test in bounded subprocesses; arbitrary target paths are rejected.
+- No telemetry, cloud API calls, automatic fixes, or generated regression tests for external projects.
 - Custom `.forEach` methods, intentionally detached async callbacks, shadowed `Promise` names and other context can produce E0 signals without real project defects.
 - Symlinks, common dependency directories and files over 512 KiB are skipped; max 2,000 eligible files by default. Not a hostile-filesystem sandbox.
-- Exit `0`: command completed; `1`: optional candidate gate or failed E1 demo; `2`: CLI/scan error.
+- Exit `0`: success; `1`: optional candidate gate or failed bundled experiment/proof; `2`: CLI/scan error.
 - A clean scan does **not** certify safety or absence of defects.
 
 ## Roadmap
 
 1. Additional AST rules with precision benchmarks.
-2. Bounded project reproduction under explicit consent (E2).
-3. Red/green project regression tests and verification (E3).
+2. Bounded opt-in reproduction of real, external project failures (E2); not shipped.
+3. Automated red/green testing of external projects (E3); bundled sample is available.
 4. GitHub Action and agent integrations.
 5. Python support.
 

@@ -39,7 +39,7 @@ export function runExperiments(ruleId = 'all') {
     }
   });
   return {
-    schemaVersion: '0.2',
+    schemaVersion: '0.3',
     tool: 'ghostproof',
     kind: 'builtin-mechanism-experiment',
     evidenceLevel: 'E1',
