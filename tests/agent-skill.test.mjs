@@ -55,7 +55,7 @@ test('skill does not promote E0 or bundled E1-E3 to external proof', () => {
 
 test('documented executable commands are actually supported by the CLI', () => {
   const help = execFileSync(process.execPath, [path.join(repo, 'bin/ghostproof.mjs'), '--help'], { encoding: 'utf8' });
-  for (const command of ['scan', 'check', 'experiment', 'proof', 'verify']) {
+  for (const command of ['scan', 'check', 'experiment', 'proof', 'verify', 'study']) {
     assert.match(help, new RegExp(`ghostproof ${command}\\b`));
   }
   for (const flag of ['--format', '--fail-on', '--output']) assert.ok(help.includes(flag));

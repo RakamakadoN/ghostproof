@@ -55,3 +55,15 @@ Only run the corresponding two commands for the host you use. If the host does n
 - The skill never authorizes an agent to install dependencies, run scripts in a target, post findings publicly, or execute an untrusted test without the user's separate permission.
 
 Read [the proof protocol](PROOF_PROTOCOL.md) for definitions, scope, and reporting requirements.
+
+## v0.5 host smoke and pinned study
+
+```bash
+cd ~/ghostproof
+npm run smoke:skills
+node ./bin/ghostproof.mjs study --format json
+```
+
+The smoke check compares the personal Codex and Claude SKILL.md files against the repository. It does not prove model activation. Open a new Codex session and explicitly request `$ghostproof`; open a new Claude Code session and invoke `/ghostproof`. Ask for a read-only scan of `~/ghostproof/src` and inspect its scanned-file count.
+
+The pinned study downloads only two approved public files at exact Git revisions, validates their Git blob hashes, and emits E0 findings without executing downloaded source. Details: [PINNED_STUDY.md](PINNED_STUDY.md).

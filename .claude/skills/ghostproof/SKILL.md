@@ -2,7 +2,7 @@
 name: ghostproof
 description: Use when asked to scan, audit, or triage JavaScript or TypeScript asynchronous-code bug candidates with Ghostproof, or to inspect and verify its evidence reports. Run read-only AST checks, separate E0 findings from E1 mechanism demos and bundled E2/E3 evidence, and report reproducible results without executing target code.
 license: MIT
-compatibility: Requires Node.js 20+ and an existing trusted Ghostproof CLI checkout (v0.4 or later); the agent needs shell access to invoke it.
+compatibility: Requires Node.js 20+ and an existing trusted Ghostproof CLI checkout (v0.5 or later); the agent needs shell access to invoke it.
 ---
 
 # GHOSTPROOF — evidence-first code review
@@ -66,3 +66,9 @@ node "$GHOSTPROOF_HOME/bin/ghostproof.mjs" verify "/absolute/path/to/bw001-evide
 **Exit codes:** `0` command completed successfully; `1` candidates only when `--fail-on candidates` is set, or a bundled experiment/proof failure; `2` CLI/scan error. Plain `scan` returning `0` does **not** mean zero candidates.
 
 For the current engine limits and evidence semantics, consult `README.md` and `docs/PROOF_PROTOCOL.md` **in the trusted Ghostproof checkout**, when available.
+
+## v0.5 pinned public study and skill smoke
+
+- `npm run smoke:skills` verifies that the user's personal Codex and Claude SKILL.md copies match the trusted checkout; it does not prove host activation. Test real invocation with `$ghostproof` in Codex or `/ghostproof` in Claude Code.
+- `node "$GHOSTPROOF_HOME/bin/ghostproof.mjs" study --format json` downloads exactly two fixed public source files on pinned commits, checks their Git blob identities, and scans them as data. No arbitrary URL is accepted; no downloaded code is executed.
+- The pinned study is E0 only and covers two files, not entire external repositories. Do not promote results to E2/E3 or claim verified external defects. Consult `docs/PINNED_STUDY.md` from the checkout.
