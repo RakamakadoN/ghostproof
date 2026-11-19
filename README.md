@@ -1,110 +1,108 @@
 <div align="center">
 
-# Ghostproof
+# GHOSTPROOF
 
 ### Your AI wrote the code. Check what it broke.
 
-**Evidence-first detection of hidden bug candidates in AI-generated and human-written code.**
+**Evidence-first AST analysis and controlled runtime experiments for JavaScript and TypeScript.**
 
 [![CI](https://github.com/RakamakadoN/ghostproof/actions/workflows/ci.yml/badge.svg)](https://github.com/RakamakadoN/ghostproof/actions/workflows/ci.yml)
 ![Node 20+](https://img.shields.io/badge/Node.js-20%2B-339933)
 ![MIT](https://img.shields.io/badge/license-MIT-blue)
-![Early preview](https://img.shields.io/badge/status-early%20preview-orange)
+![Preview](https://img.shields.io/badge/status-v0.2%20preview-orange)
 
 </div>
 
-> **Early preview (v0.1):** A working, read-only JavaScript/TypeScript heuristic scanner. It reports **E0 candidates**, not confirmed bugs. Reproducing failures and generating project-specific regression tests are *roadmap items*, not currently implemented.
+> **Early preview v0.2.** Scan results are **E0 candidates**, not confirmed project bugs. Two bundled E1 experiments demonstrate language/runtime mechanisms, not real project defects. E2/E3 verification is planned, not shipped.
 
-## Why Ghostproof?
+## Quick start
 
-AI coding agents can produce convincing code while missing subtle runtime behavior. Traditional quality tools help, but developers still need a reproducible path from **suspicion → experiment → bug confirmation → regression test**.
-
-Ghostproof is built around that evidence progression. The first release intentionally starts narrow rather than claiming that every suspicious pattern is a defect.
-
-## Try it in 30 seconds
-
-Requires Node.js 20 or later. No API key, account, install step, or dependency download is required.
+Requires Node.js 20+. No account or API key.
 
 ```bash
 git clone https://github.com/RakamakadoN/ghostproof.git
 cd ghostproof
+npm ci --ignore-scripts
 npm test
-node ./bin/ghostproof.mjs scan ./examples
+npm run demo
+npm run experiment
 ```
 
-Expected summary:
+Demo summary:
 
 ```text
-Ghostproof 0.1 | 2 files scanned | 2 E0 candidates | 0 confirmed
+Ghostproof 0.2 [TypeScript AST] | 2 files scanned | 2 E0 candidates | 0 confirmed
 ```
 
-Scan your project:
+Local scan of your project:
 
 ```bash
-node ./bin/ghostproof.mjs scan /path/to/your/project
-node ./bin/ghostproof.mjs scan /path/to/your/project --format json
-node ./bin/ghostproof.mjs check /path/to/your/project --fail-on candidates
+node ./bin/ghostproof.mjs scan /path/to/project
+node ./bin/ghostproof.mjs scan /path/to/project --format json
+node ./bin/ghostproof.mjs check /path/to/project --fail-on candidates
 ```
 
-You can also run `npm link` in the checkout to add the local `ghostproof` command. **The package is not yet published to npm**; `npx ghostproof` is not a supported install path.
+Built-in controlled E1 experiments (no target code executed):
 
-Default exit behavior is non-breaking: `0` on a completed scan, even when candidates are found. Opt into exit `1` with `--fail-on candidates`; CLI/scan errors exit `2`.
+```bash
+node ./bin/ghostproof.mjs experiment GP001
+node ./bin/ghostproof.mjs experiment GP002 --format json
+node ./bin/ghostproof.mjs experiment --all
+```
 
-## What it detects today
+`npm link` adds a local `ghostproof` command. This package is **not published to npm** yet; `npx ghostproof` is not supported.
 
-| Rule | Candidate | Why review it? |
+## Two bounded rules
+
+| Rule | E0 AST signal | E1 built-in mechanism |
 | --- | --- | --- |
-| `GP001` | Async callback passed to `forEach` | `forEach` does not wait for returned promises |
-| `GP002` | Async `Promise` constructor executor | A throw after `await` may leave the outer Promise pending |
+| **GP001** | Async callback passed to `.forEach(...)` | `forEach` returns before async callbacks complete |
+| **GP002** | `new Promise(async ...)` executor | A rejection after `await` may leave the outer promise pending |
 
 Example:
 
-```js
-items.forEach(async (item) => {
+```javascript
+items.forEach(async item => {
   await save(item);
 });
 ```
 
-This is **not automatically a bug**: detached async work may be intentional. Ghostproof returns a candidate with its source location and guidance to investigate whether the caller requires completion.
+This pattern is **not automatically a bug**: asynchronous work may intentionally be detached. E0 means "investigate", not "confirmed".
 
-## Evidence, not confidence theater
+## Evidence ladder
 
-- **E0 — candidate:** bounded static signal only (**supported now**).
-- **E1 — mechanism reproduction:** demonstrate the runtime mechanism in isolation.
-- **E2 — project reproduction:** demonstrate a real failure against the affected project.
-- **E3 — regression guarded:** red-before / green-after test of the exact bug.
+- **E0** — candidate: source location, AST signal, rule ID, explanation and fingerprint (**implemented**).
+- **E1** — isolated runtime mechanism observed in a repository-owned fixture (**implemented for GP001/GP002**).
+- **E2** — a real affected project fails in a reproducible test (**roadmap**).
+- **E3** — a regression test fails before and passes after the actual fix (**roadmap**).
 
-See [Proof Protocol](docs/PROOF_PROTOCOL.md). A scanner match never gets promoted beyond E0 without additional evidence.
+See [Proof Protocol](docs/PROOF_PROTOCOL.md). An E1 demonstration never automatically promotes a project E0 finding to E2.
 
-## Scope and limitations
+## How it works
 
-- Read-only; does not import, build, or execute source code being scanned.
-- Supports `.js`, `.jsx`, `.mjs`, `.cjs`, `.ts`, `.tsx` with **heuristics, not full AST parsing**.
-- Masks common comments and string/template contents; regex literals, JSX, dynamic syntax, and complex callback types can cause false positives or misses.
-- Skips symlinks, common dependency/build folders, and files above 512 KiB by default. Maximum 2,000 source files by default. Raises an error rather than silently truncating at the file-count limit.
-- JSON output includes file locations, stable fingerprints, E0 labels, scan coverage, and `confirmed: 0`.
-- No cloud calls, telemetry, LLM inference, autofix, or project-specific regression generation.
-- **Security-sensitive or private code:** use local scans only and review artifacts before sharing.
+The TypeScript compiler AST parser (`typescript@5.8.3`) scans `.js`, `.jsx`, `.mjs`, `.cjs`, `.ts`, `.tsx` syntax. It avoids interpreting comments, strings, regex literals or JSX strings as code. It does **not** type-check receiver types or prove control-flow faults.
+
+The JSON scan report includes parser identity, findings, fingerprints, file-count and parse diagnostic coverage. Syntax-invalid sources are skipped with diagnostics.
+
+## Safety and limitations
+
+- Read-only scanning: target files are not imported, built, compiled or executed.
+- `experiment` executes **only** built-in fixture IDs GP001/GP002 in 2-second bounded subprocesses; arbitrary paths are rejected.
+- No telemetry, cloud API calls, automatic fixes, or project-specific regression generation.
+- Custom `.forEach` methods, intentionally detached async callbacks, shadowed `Promise` names and other context can produce E0 signals without real project defects.
+- Symlinks, common dependency directories and files over 512 KiB are skipped; max 2,000 eligible files by default. Not a hostile-filesystem sandbox.
+- Exit `0`: command completed; `1`: optional candidate gate or failed E1 demo; `2`: CLI/scan error.
+- A clean scan does **not** certify safety or absence of defects.
 
 ## Roadmap
 
-1. Parser-backed JS/TS analysis with measured precision and false-positive rates.
-2. Bounded isolated behavioral reproductions with explicit opt-in.
-3. E2/E3 project-specific tests and mutation-aware verification.
-4. Python support, GitHub Actions integration, and optional CI annotations.
-5. Optional interfaces for agent systems and Git history analysis.
+1. Additional AST rules with precision benchmarks.
+2. Bounded project reproduction under explicit consent (E2).
+3. Red/green project regression tests and verification (E3).
+4. GitHub Action and agent integrations.
+5. Python support.
 
-## Contributing
-
-Start with [CONTRIBUTING.md](CONTRIBUTING.md). Please provide a minimal positive and negative fixture for every new rule; never label a static pattern a confirmed production defect.
-
-## Security
-
-See [SECURITY.md](SECURITY.md). Please disclose exploitable vulnerabilities privately, not in public issues.
-
-## Provenance
-
-Ghostproof is a separate public product; private research repositories and evidence are **not** imported into this project by default. This repository contains only material intentionally published for its users.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md). Private research repositories and undisclosed findings are not imported into this public project.
 
 ## License
 

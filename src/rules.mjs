@@ -1,20 +1,15 @@
-/**
- * Heuristic syntax signatures only. A match is an E0 candidate, never a
- * reproduced project bug. Extend via parsers and project tests later.
- */
-export const RULES = Object.freeze([
-  {
+/** Rule definitions are hypotheses, not guaranteed defects. */
+export const RULES = Object.freeze({
+  GP001: {
     id: 'GP001',
     title: 'Async callback passed to forEach',
-    explanation: 'Array.forEach does not await returned promises. Async work may still be running after the loop returns.',
-    guidance: 'Check whether the caller relies on completion. Consider for...of with await or Promise.all with map.',
-    pattern: /\.forEach\s*\(\s*async\s*(?:function\b|\([^)]*\)\s*=>|[A-Za-z_$][\w$]*\s*=>)/g,
+    explanation: 'Array.forEach does not await returned promises. If completion is required, async callbacks may still be running when the call returns.',
+    guidance: 'Verify whether the caller requires completion. Consider for...of with await or Promise.all(items.map(...)).',
   },
-  {
+  GP002: {
     id: 'GP002',
     title: 'Async Promise executor',
-    explanation: 'A throw after await in an async Promise executor may not reject the outer Promise, leaving it pending.',
-    guidance: 'Prefer a non-async executor or use an async function directly; verify the intended error propagation.',
-    pattern: /\bnew\s+Promise\s*(?:<[^>\n]*>\s*)?\(\s*async\s*(?:function\b|\([^)]*\)\s*=>|[A-Za-z_$][\w$]*\s*=>)/g,
+    explanation: 'A throw after await in an async Promise executor does not reject the outer Promise; it may remain pending.',
+    guidance: 'Use a synchronous Promise executor or return an async function directly. Verify error propagation.',
   },
-]);
+});
