@@ -1,6 +1,6 @@
 {
   "name": "ghostproof",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "description": "Evidence-first AST bug candidates and isolated mechanism experiments for JavaScript/TypeScript",
   "type": "module",
@@ -12,7 +12,9 @@
     "demo": "node ./bin/ghostproof.mjs scan ./examples",
     "experiment": "node ./bin/ghostproof.mjs experiment --all",
     "check": "node ./bin/ghostproof.mjs scan ./src",
-    "proof": "node ./bin/ghostproof.mjs proof BW001"
+    "proof": "node ./bin/ghostproof.mjs proof BW001",
+    "smoke:skills": "node ./scripts/skill-install-smoke.mjs",
+    "study:pinned": "node ./bin/ghostproof.mjs study"
   },
   "dependencies": {
     "typescript": "5.8.3"

@@ -9,11 +9,11 @@
 [![CI](https://github.com/RakamakadoN/ghostproof/actions/workflows/ci.yml/badge.svg)](https://github.com/RakamakadoN/ghostproof/actions/workflows/ci.yml)
 ![Node 20+](https://img.shields.io/badge/Node.js-20%2B-339933)
 ![MIT](https://img.shields.io/badge/license-MIT-blue)
-![Preview](https://img.shields.io/badge/status-v0.4%20preview-orange)
+![Preview](https://img.shields.io/badge/status-v0.5%20preview-orange)
 
 </div>
 
-> **Early preview v0.4.** Scans of your code return **E0 candidates**, not confirmed bugs. E1 runs two repository-owned mechanism fixtures. The new `proof BW001` command demonstrates E2/E3 red/green evidence on an intentionally defective **bundled sample project** only. No arbitrary external-project E2/E3 verification is shipped.
+> **Early preview v0.5.** Scans of your code return **E0 candidates**, not confirmed bugs. E1 runs two repository-owned mechanism fixtures. The new `proof BW001` command demonstrates E2/E3 red/green evidence on an intentionally defective **bundled sample project** only. No arbitrary external-project E2/E3 verification is shipped.
 
 ## Quick start
 
@@ -135,6 +135,15 @@ The JSON scan report includes parser identity, findings, fingerprints, file-coun
 5. Python support.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md). Private research repositories and undisclosed findings are not imported into this public project.
+
+## v0.5 pinned public E0 and agent-host smoke
+
+```bash
+npm run smoke:skills
+node ./bin/ghostproof.mjs study --format json
+```
+
+The first command checks installed local Agent Skill files; actual model recognition requires explicit invocation in Codex or Claude Code. The second scans exactly two publicly available TypeScript files at fixed commits, verifies Git blob hashes, and emits E0 candidates without running downloaded code. It requires network access and is not a full repository audit. See [pinned E0 study](docs/PINNED_STUDY.md).
 
 ## License
 

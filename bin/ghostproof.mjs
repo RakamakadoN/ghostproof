@@ -3,9 +3,10 @@ import { scanPath } from '../src/scanner.mjs';
 import { runExperiments } from '../src/experiments.mjs';
 import { runProjectProof } from '../src/project-proof.mjs';
 import { verifyEvidenceFile } from '../src/evidence-verifier.mjs';
+import { runPinnedStudy } from '../src/pinned-study.mjs';
 import { writeFile } from 'node:fs/promises';
 
-const HELP = `Ghostproof v0.4 — evidence-first candidates and bounded reproduction experiments
+const HELP = `Ghostproof v0.5 — evidence-first candidates and bounded reproduction experiments
 
 Usage:
   ghostproof scan [path] [--format text|json] [--fail-on candidates|none]
@@ -13,6 +14,7 @@ Usage:
   ghostproof experiment GP001|GP002|--all [--format text|json]
   ghostproof proof BW001 [--format text|json] [--output report.json]
   ghostproof verify report.json [--format text|json]
+  ghostproof study [--format text|json]
 
 Options:
   --max-files N       Maximum source files (default 2000)
@@ -30,7 +32,7 @@ E2/E3 proofs for arbitrary external projects are NOT supported.`;
 function parse(argv) {
   if (argv.length === 0 || argv.includes('--help') || argv.includes('-h')) return { help: true };
   const [command, ...args] = argv;
-  if (!['scan', 'check', 'experiment', 'proof', 'verify'].includes(command)) throw new Error(`Unknown command: ${command}`);
+  if (!['scan', 'check', 'experiment', 'proof', 'verify', 'study'].includes(command)) throw new Error(`Unknown command: ${command}`);
   const opts = { command, target: '.', format: 'text', failOn: 'none' };
   let targetSet = false;
   for (let i = 0; i < args.length; i++) {
@@ -55,7 +57,7 @@ function parse(argv) {
   }
   if (!['text', 'json'].includes(opts.format)) throw new Error('--format must be text or json');
   if (!['none', 'candidates'].includes(opts.failOn)) throw new Error('--fail-on must be none or candidates');
-  if ((command === 'experiment' || command === 'proof' || command === 'verify') &&
+  if ((command === 'experiment' || command === 'proof' || command === 'verify' || command === 'study') &&
       ('maxFiles' in opts || 'maxBytes' in opts || opts.failOn !== 'none')) {
     throw new Error('Scan-only options cannot be used with experiment or proof');
   }
@@ -63,11 +65,12 @@ function parse(argv) {
   if (command === 'experiment' && !targetSet) throw new Error('Choose an experiment: GP001, GP002, or --all');
   if (command === 'proof' && !targetSet) throw new Error('Choose a bundled proof: BW001');
   if (command === 'verify' && !targetSet) throw new Error('Choose an evidence JSON file to verify');
+  if (command === 'study' && targetSet) throw new Error('Pinned study accepts no custom target');
   return opts;
 }
 
 function printScan(report) {
-  console.log(`Ghostproof 0.4 [TypeScript AST] | ${report.summary.scannedFiles} files scanned | ${report.summary.candidates} E0 candidates | 0 confirmed`);
+  console.log(`Ghostproof 0.5 [TypeScript AST] | ${report.summary.scannedFiles} files scanned | ${report.summary.candidates} E0 candidates | 0 confirmed`);
   for (const item of report.findings) {
     console.log(`\n${item.path}:${item.line}:${item.column}  ${item.ruleId} [E0 candidate] ${item.title}`);
     console.log(`  ${item.excerpt}`);
@@ -79,14 +82,14 @@ function printScan(report) {
 }
 
 function printProjectProof(report) {
-  console.log(`Ghostproof 0.4 — ${report.caseId} bundled project evidence`);
+  console.log(`Ghostproof 0.5 — ${report.caseId} bundled project evidence`);
   console.log(`E2: ${report.e2.reproduced ? 'PASS' : 'FAIL'} | sample project contract violation reproduced`);
   console.log(`E3: ${report.e3.regressionGuarded ? 'PASS' : 'FAIL'} | same test RED before / GREEN after`);
   console.log('This demonstration does not establish a defect in any external project.');
 }
 
 function printExperiments(report) {
-  console.log('Ghostproof 0.4 — built-in E1 language-mechanism experiments');
+  console.log('Ghostproof 0.5 — built-in E1 language-mechanism experiments');
   for (const exp of report.experiments) {
     console.log(`${exp.ruleId}: ${exp.observed ? 'PASS' : 'FAIL'} | ${exp.mechanism ?? exp.error}`);
   }
@@ -96,7 +99,18 @@ function printExperiments(report) {
 try {
   const opts = parse(process.argv.slice(2));
   if (opts.help) { console.log(HELP); process.exit(0); }
-  if (opts.command === 'experiment') {
+  if (opts.command === 'study') {
+    const report = await runPinnedStudy();
+    if (opts.format === 'json') console.log(JSON.stringify(report, null, 2));
+    else {
+      console.log('Ghostproof 0.5 public E0 study | ' + report.summary.scannedFiles + ' files | ' + report.summary.candidates + ' candidates | 0 confirmed');
+      for (const entry of report.results) {
+        console.log('\n' + entry.repository + '@' + entry.commit.slice(0,12) + ' ' + entry.path + ': ' + entry.candidateCount + ' candidates');
+        for (const finding of entry.findings) console.log('  ' + finding.path + ':' + finding.line + ':' + finding.column + ' ' + finding.ruleId + ' [E0]');
+      }
+      console.log('No external code executed or project defect confirmed.');
+    }
+  } else if (opts.command === 'experiment') {
     const report = runExperiments(opts.target);
     if (opts.format === 'json') console.log(JSON.stringify(report, null, 2));
     else printExperiments(report);
@@ -105,7 +119,7 @@ try {
     const result = await verifyEvidenceFile(opts.target);
     if (opts.format === 'json') console.log(JSON.stringify(result, null, 2));
     else {
-      console.log(`Ghostproof 0.4 — BW001 evidence verification: ${result.passed ? 'PASS' : 'FAIL'}`);
+      console.log(`Ghostproof 0.5 — BW001 evidence verification: ${result.passed ? 'PASS' : 'FAIL'}`);
       console.log(result.passed ? 'Pinned fixtures match; deterministic bundled E2/E3 replay agrees with the supplied JSON.' : result.reason);
       console.log('No external-project bug was confirmed.');
     }

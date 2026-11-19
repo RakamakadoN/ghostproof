@@ -32,3 +32,24 @@ jobs:
         run: node ./bin/ghostproof.mjs verify /tmp/ghostproof-project-proof.json --format json > /tmp/ghostproof-verification.json
       - name: Verify productive source scan
         run: npm run check
+
+  pinned-e0:
+    name: Fixed-commit real public source scan (read-only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Scan pinned source files as data (verify blob before scanning)
+        run: node ./bin/ghostproof.mjs study --format json > pinned-e0-report.json
+      - name: Validate pinned E0 result
+        run: node -e "const r = require('./pinned-e0-report.json'); if(r.kind !== 'pinned-public-e0-study' || r.summary.scannedFiles !== 2 || r.summary.confirmed !== 0) process.exit(1);"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ghostproof-pinned-e0
+          path: pinned-e0-report.json
+          retention-days: 7
