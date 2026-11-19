@@ -28,5 +28,7 @@ jobs:
         run: node ./bin/ghostproof.mjs experiment --all --format json > /tmp/ghostproof-mechanisms.json
       - name: Validate bundled E2 and E3 proof demo
         run: node ./bin/ghostproof.mjs proof BW001 --format json > /tmp/ghostproof-project-proof.json
+      - name: Verify bundled evidence integrity and replay
+        run: node ./bin/ghostproof.mjs verify /tmp/ghostproof-project-proof.json --format json > /tmp/ghostproof-verification.json
       - name: Verify productive source scan
         run: npm run check

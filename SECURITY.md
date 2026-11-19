@@ -13,3 +13,7 @@ Ghostproof v0.2 is a preview, not a complete security audit.
 Please report vulnerabilities in Ghostproof privately using GitHub private vulnerability reporting, if enabled, or contact the maintainer privately. Never post confidential source, secrets or undisclosed exploits as public GitHub issues.
 
 The `proof` command currently accepts only the explicitly bundled `BW001` sample. It must not execute arbitrary user-supplied repositories or paths. Evidence output is created only when `--output PATH` is supplied and refuses to overwrite existing files; review any evidence before sharing it. A subprocess timeout is **not** a general-purpose adversarial sandbox.
+
+### Evidence verifier scope (v0.4)
+
+`verify` reads a bounded regular JSON file and rejects symlinks and oversized reports. It never executes commands or paths embedded in evidence; replay executes only pre-pinned repository-owned BW001 fixtures. This feature is **not** a sandbox for hostile local workspaces, an authenticity signature, or a verifier for arbitrary external-project proofs.
