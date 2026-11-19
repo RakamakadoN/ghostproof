@@ -1,15 +1,17 @@
 {
   "name": "ghostproof",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Evidence-first static bug candidates for JavaScript and TypeScript",
+  "description": "Evidence-first AST bug candidates and isolated mechanism experiments for JavaScript/TypeScript",
   "type": "module",
   "bin": {"ghostproof": "./bin/ghostproof.mjs"},
   "scripts": {
     "test": "node --test",
     "demo": "node ./bin/ghostproof.mjs scan ./examples",
+    "experiment": "node ./bin/ghostproof.mjs experiment --all",
     "check": "node ./bin/ghostproof.mjs scan ."
   },
+  "dependencies": {"typescript": "5.8.3"},
   "engines": {"node": ">=20"},
   "license": "MIT"
 }

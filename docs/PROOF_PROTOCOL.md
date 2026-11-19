@@ -1,26 +1,36 @@
-# Proof protocol
+# Ghostproof proof protocol v0.2
 
-Ghostproof follows an explicit evidence ladder. A static signal is not a defect confirmation.
+This protocol prevents false confidence. A static hit is an observation, not a confirmed defect.
 
-| Level | Label | Minimum evidence |
-| --- | --- | --- |
-| **E0** | Candidate | Bounded static signal with file, location, and rule; no behavioral claim |
-| **E1** | Mechanism reproduction | A safe isolated test demonstrates the suspected language/runtime mechanism, **not necessarily a project bug** |
-| **E2** | Project reproduction | A minimally scoped test against the affected project demonstrates the real failure, with a deterministic expected/actual result |
-| **E3** | Regression guarded | A regression test fails on the vulnerable revision and passes after the relevant fix |
+| Level | Label | Minimum evidence | v0.2 support |
+| --- | --- | --- | --- |
+| **E0** | Candidate | AST signal, source file, position, rule ID and review guidance | **Implemented** |
+| **E1** | Mechanism reproduction | A bounded isolated experiment demonstrates a language/runtime mechanism; this **does not imply an actual project bug** | **Implemented for two built-in fixtures** |
+| **E2** | Project reproduction | A minimized test against a real affected project shows the failure in that context | Roadmap |
+| **E3** | Regression guarded | Test fails before the fix and passes after it; controls and versions documented | Roadmap |
 
-## Invariants
+## Core invariants
 
-1. Never call an E0 hit a confirmed bug.
-2. Never equate a generic language-semantics demonstration with E2 reproduction.
-3. Do not execute target project code by default. Future execution must be explicit, bounded, and appropriately sandboxed.
-4. Do not leak private source, credentials, or confidential vulnerability details in reports.
-5. Keep source anchors, rule ID, test steps, runtime versions, and expected/actual results together.
-6. An E3 claim requires a negative control (test fails before the fix) and positive control (test passes after the fix).
+1. Never describe an E0 hit as a confirmed bug.
+2. An E1 demonstration cannot automatically promote a *specific E0 candidate* to E2.
+3. E1 experiments may execute **only the bundled fixture programs**; the target repository is never imported, built or run by default.
+4. A real project reproduction requires explicit permission, isolation and bounded resources before implementing E2.
+5. An E3 claim requires both a failing test before the fix and a passing test after the fix, with an equivalent test environment.
+6. Findings, fingerprints, experiment outcome and scope should remain separately inspectable.
+7. No sensitive source code, access tokens or confidential vulnerability evidence goes into public test fixtures.
 
-## First release
+## Evidence boundaries in v0.2
 
-The v0.1 CLI implements E0 only and deliberately reports `confirmed: 0`.
-The built-in tests verify scanner behavior, not defects in third-party projects.
+- `ghostproof scan <path>` builds a TypeScript AST and identifies **E0 candidates only**, returning `summary.confirmed = 0`.
+- `ghostproof experiment GP001|GP002|--all` executes **repository-owned** scripts only, in separate bounded Node subprocesses. Passing this command establishes an **E1 mechanism demonstration** for this Node runtime, not a fault in the scanned application.
+- Neither command generates project-specific tests or performs E2/E3 verification.
 
-The E1–E3 pipeline is a planned extension, not a shipped feature.
+## Rule caveats
+
+**GP001**: `forEach` need not be `Array.prototype.forEach` (static syntax cannot prove receiver type); async callbacks may be deliberately fire-and-forget.
+
+**GP002**: the name `Promise` may refer to a shadowed constructor. A static match does not prove a rejection occurs at runtime.
+
+## Reporting templates for later E2/E3 implementations
+
+When E2 support exists, reports should record: environment, exact revision, a minimal deterministic reproduction, expected vs actual behavior, error traces and test results. E3 should record the failing pre-fix and passing post-fix revisions. Until such machinery ships, **do not assert those outcomes**.

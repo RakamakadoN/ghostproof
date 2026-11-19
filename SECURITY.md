@@ -1,7 +1,13 @@
 # Security policy
 
-This project is an early-preview static scanner. The v0.1 CLI reads source files but does not execute them. Do not assume it provides a complete security audit.
+Ghostproof v0.2 is a preview, not a complete security audit.
 
-If you discover a security issue in Ghostproof itself, please use GitHub's private vulnerability reporting, if enabled, or contact the maintainer privately before sharing exploit details. Avoid public issues containing credentials, undisclosed vulnerabilities, or confidential code.
+## Threat boundary
 
-Security-sensitive design decisions include avoiding arbitrary execution of scanned repositories, respecting file boundaries, and separating unverified static candidates from reproduced vulnerabilities.
+- `scan` reads eligible JavaScript/TypeScript files but never executes, imports or compiles them.
+- `experiment` only runs two bundled, controlled fixture IDs in bounded Node subprocesses; paths supplied by the user cannot be executed.
+- E0 static findings and E1 isolated mechanisms do **not** confirm third-party vulnerabilities.
+- Parser and runtime dependencies should come from trusted sources and the checked-in lockfile.
+- File size limits, directory exclusions and skipped symlinks reduce risk but are not a filesystem sandbox. Do not run with elevated privileges on actively hostile or concurrently modified directory trees.
+
+Please report vulnerabilities in Ghostproof privately using GitHub private vulnerability reporting, if enabled, or contact the maintainer privately. Never post confidential source, secrets or undisclosed exploits as public GitHub issues.

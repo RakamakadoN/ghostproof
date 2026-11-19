@@ -1,27 +1,24 @@
 # Contributing to Ghostproof
 
-Thank you for helping improve reproducible code analysis.
+Ghostproof favors reproducible evidence over unqualified claims of defect discovery.
 
 ## Development
 
-Node.js 20+ is required. No dependencies are needed for the current CLI.
-
 ```bash
+npm ci --ignore-scripts
 npm test
 npm run demo
+npm run experiment
 ```
 
-## Rules
+Requires Node.js 20+. The TypeScript parser is pinned in `package-lock.json`.
 
-A new rule must include:
+## Adding a rule
 
-1. A concise behavioral hypothesis and remediation guidance.
-2. Positive and negative fixtures in `tests/` to bound false positives.
-3. Clear E0 labeling until project-specific failure is reproduced.
-4. An explicit note about unsupported syntax or situations.
+Every AST rule needs a clear runtime hypothesis, a bounded predicate, guidance, and positive/negative tests. Include comments, strings, regex, JSX, TypeScript, and potential false-positive cases as relevant. Label static matches **E0 candidates**, never confirmed bugs.
 
-Do not copy private bug reports, proprietary code, unreleased vulnerabilities, or credentials into fixtures, issues, or PRs.
+## Adding an E1 experiment
 
-## Pull requests
+Experiments must use **repository-owned, deterministic fixtures only**. They cannot execute arbitrary user-selected paths or import scanned projects. Tests must check the observed outcome and retain `projectBugConfirmed: false`.
 
-Keep changes focused. Explain expected behavior, test commands, limitations, and any new privacy/security implications. Do not run untrusted target code in CI.
+Keep PRs focused and include tested commands and limitations. Do not commit private source, secrets, unpublished bug reports, or embargoed vulnerability details.

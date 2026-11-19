@@ -17,7 +17,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
+          cache: npm
+      - name: Install pinned parser dependency
+        run: npm ci --ignore-scripts
       - name: Run deterministic tests
         run: npm test
-      - name: Smoke test CLI
+      - name: Smoke test AST CLI
         run: node ./bin/ghostproof.mjs scan ./examples --format json > /tmp/ghostproof-report.json
+      - name: Validate isolated E1 demos
+        run: node ./bin/ghostproof.mjs experiment --all --format json > /tmp/ghostproof-mechanisms.json
