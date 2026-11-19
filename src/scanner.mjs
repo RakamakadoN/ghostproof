@@ -160,8 +160,8 @@ export async function scanPath(target, options = {}) {
   findings.sort((a, b) => a.path.localeCompare(b.path) || a.line - b.line || a.column - b.column || a.ruleId.localeCompare(b.ruleId));
   summary.candidates = findings.length;
   return {
-    schemaVersion: '0.2',
-    tool: { name: 'ghostproof', version: '0.2.0', engine: 'typescript-ast' },
+    schemaVersion: '0.3',
+    tool: { name: 'ghostproof', version: '0.3.0', engine: 'typescript-ast' },
     target: root,
     summary,
     findings,

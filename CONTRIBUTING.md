@@ -22,3 +22,7 @@ Every AST rule needs a clear runtime hypothesis, a bounded predicate, guidance, 
 Experiments must use **repository-owned, deterministic fixtures only**. They cannot execute arbitrary user-selected paths or import scanned projects. Tests must check the observed outcome and retain `projectBugConfirmed: false`.
 
 Keep PRs focused and include tested commands and limitations. Do not commit private source, secrets, unpublished bug reports, or embargoed vulnerability details.
+
+## Bundled project proof cases
+
+A new `proof` case must have a documented project contract, deterministic before/after fixtures, the **same test** in both revisions, bounded subprocess execution, SHA-256 source metadata, negative controls, and no external code execution. The public fixture must be intentionally disclosed and not contain private customer code.
