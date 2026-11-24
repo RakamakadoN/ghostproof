@@ -40,3 +40,25 @@ test('CLI prevents choosing arbitrary executable E1 fixtures', () => {
   assert.equal(result.status, 2);
   assert.match(result.stderr, /Unknown experiment/);
 });
+
+for (const args of [['experiment', 'GP001'], ['proof', 'BW001'], ['verify', 'report.json'], ['study']]) {
+  for (const flag of [['--fail-on', 'none'], ['--fail-on=none'], ['--fail-on=candidates']]) {
+    test(`${args[0]} rejects scan-only option ${flag.join(' ')}`, () => {
+      const result = run(...args, ...flag);
+      assert.equal(result.status, 2, result.stderr);
+      assert.match(result.stderr, /Scan-only options are only available with scan or check/);
+    });
+  }
+}
+test('repeated fail-on cannot hide explicit scan-only usage', () => {
+  const result = run('study', '--fail-on=candidates', '--fail-on=none');
+  assert.equal(result.status, 2, result.stderr);
+  assert.match(result.stderr, /Scan-only options are only available with scan or check/);
+});
+for (const command of ['scan', 'check']) {
+  test(`${command} accepts explicit fail-on none`, () => {
+    const result = run(command, 'examples', '--fail-on=none', '--format', 'json');
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(JSON.parse(result.stdout).summary.candidates, 2);
+  });
+}
