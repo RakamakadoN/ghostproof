@@ -9,11 +9,11 @@
 [![CI](https://github.com/RakamakadoN/ghostproof/actions/workflows/ci.yml/badge.svg)](https://github.com/RakamakadoN/ghostproof/actions/workflows/ci.yml)
 ![Node 20+](https://img.shields.io/badge/Node.js-20%2B-339933)
 ![MIT](https://img.shields.io/badge/license-MIT-blue)
-![Preview](https://img.shields.io/badge/status-v0.5%20preview-orange)
+![Preview](https://img.shields.io/badge/status-v0.6%20preview-orange)
 
 </div>
 
-> **Early preview v0.5.** Scans of your code return **E0 candidates**, not confirmed bugs. E1 runs two repository-owned mechanism fixtures. The new `proof BW001` command demonstrates E2/E3 red/green evidence on an intentionally defective **bundled sample project** only. No arbitrary external-project E2/E3 verification is shipped.
+> **Early preview v0.6.** Scans of your code return **E0 candidates**, not confirmed bugs. E1 runs two repository-owned mechanism fixtures. The new `proof BW001` command demonstrates E2/E3 red/green evidence on an intentionally defective **bundled sample project** only. No arbitrary external-project E2/E3 verification is shipped.
 
 ## Quick start
 
@@ -32,7 +32,7 @@ npm run proof
 Demo summary:
 
 ```text
-Ghostproof 0.5 [TypeScript AST] | 2 files scanned | 2 E0 candidates | 0 confirmed
+Ghostproof 0.6 [TypeScript AST] | 2 files scanned | 2 E0 candidates | 0 confirmed
 ```
 
 Local scan of your project:
@@ -53,7 +53,7 @@ node ./bin/ghostproof.mjs experiment GP002 --format json
 node ./bin/ghostproof.mjs experiment --all
 ```
 
-Verify a previously created **v0.3 BW001** JSON report with Ghostproof v0.5:
+Verify a previously created **v0.3 BW001** JSON report with Ghostproof v0.6:
 
 ```bash
 node ./bin/ghostproof.mjs proof BW001 --output ./bw001-evidence.json
@@ -127,6 +127,10 @@ The JSON scan report includes parser identity, findings, fingerprints, file-coun
 - Symlinks, common dependency directories and files over 512 KiB are skipped; max 2,000 eligible files by default. Not a hostile-filesystem sandbox.
 - Exit `0`: success; `1`: optional candidate gate or unsuccessful bundled experiment, proof or evidence verification; `2`: invalid arguments or an error reported by the CLI.
 - A clean scan does **not** certify safety or absence of defects.
+
+## v0.6 engineering validation
+
+See [changelog](CHANGELOG.md), [performance baseline](docs/PERFORMANCE.md), [platform smoke scope](docs/PLATFORM_COMPATIBILITY.md), and [comparative contract benchmark](docs/COMPARATIVE_BENCHMARK.md). The selected synthetic contract comparison improved from 12/40 to 40/40; this is not real-world detector accuracy. The evidence schemas remain unchanged.
 
 ## Roadmap
 

@@ -48,7 +48,7 @@ export async function runPinnedStudy({fetcher=globalThis.fetch}={}) {
   const results=[];
   for (const spec of PINNED_SOURCES) results.push(await scanPinnedSource(spec,{fetcher}));
   return {schemaVersion:'0.5',kind:'pinned-public-e0-study',
-    tool:{name:'ghostproof',version:'0.5.0',engine:'typescript-ast'},
+    tool:{name:'ghostproof',version:'0.6.0',engine:'typescript-ast'},
     summary:{pinnedFiles:results.length,scannedFiles:results.length,candidates:results.reduce((n,v)=>n+v.candidateCount,0),confirmed:0},
     results,note:'Read-only fixed public-file E0 scan. Does not confirm external defects or execute target code.'};
 }

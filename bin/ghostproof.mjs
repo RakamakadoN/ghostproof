@@ -6,7 +6,7 @@ import { verifyEvidenceFile } from '../src/evidence-verifier.mjs';
 import { runPinnedStudy } from '../src/pinned-study.mjs';
 import { writeFile } from 'node:fs/promises';
 
-const HELP = `Ghostproof v0.5 — evidence-first candidates and bounded reproduction experiments
+const HELP = `Ghostproof v0.6 — evidence-first candidates and bounded reproduction experiments
 
 Usage:
   ghostproof scan [path] [--format text|json] [--fail-on candidates|none]
@@ -73,7 +73,7 @@ function parse(argv) {
 }
 
 function printScan(report) {
-  console.log(`Ghostproof 0.5 [TypeScript AST] | ${report.summary.scannedFiles} files scanned | ${report.summary.candidates} E0 candidates | 0 confirmed`);
+  console.log(`Ghostproof 0.6 [TypeScript AST] | ${report.summary.scannedFiles} files scanned | ${report.summary.candidates} E0 candidates | 0 confirmed`);
   for (const item of report.findings) {
     console.log(`\n${item.path}:${item.line}:${item.column}  ${item.ruleId} [E0 candidate] ${item.title}`);
     console.log(`  ${item.excerpt}`);
@@ -85,14 +85,14 @@ function printScan(report) {
 }
 
 function printProjectProof(report) {
-  console.log(`Ghostproof 0.5 — ${report.caseId} bundled project evidence`);
+  console.log(`Ghostproof 0.6 — ${report.caseId} bundled project evidence`);
   console.log(`E2: ${report.e2.reproduced ? 'PASS' : 'FAIL'} | sample project contract violation reproduced`);
   console.log(`E3: ${report.e3.regressionGuarded ? 'PASS' : 'FAIL'} | same test RED before / GREEN after`);
   console.log('This demonstration does not establish a defect in any external project.');
 }
 
 function printExperiments(report) {
-  console.log('Ghostproof 0.5 — built-in E1 language-mechanism experiments');
+  console.log('Ghostproof 0.6 — built-in E1 language-mechanism experiments');
   for (const exp of report.experiments) {
     console.log(`${exp.ruleId}: ${exp.observed ? 'PASS' : 'FAIL'} | ${exp.mechanism ?? exp.error}`);
   }
@@ -106,7 +106,7 @@ try {
     const report = await runPinnedStudy();
     if (opts.format === 'json') console.log(JSON.stringify(report, null, 2));
     else {
-      console.log('Ghostproof 0.5 public E0 study | ' + report.summary.scannedFiles + ' files | ' + report.summary.candidates + ' candidates | 0 confirmed');
+      console.log('Ghostproof 0.6 public E0 study | ' + report.summary.scannedFiles + ' files | ' + report.summary.candidates + ' candidates | 0 confirmed');
       for (const entry of report.results) {
         console.log('\n' + entry.repository + '@' + entry.commit.slice(0,12) + ' ' + entry.path + ': ' + entry.candidateCount + ' candidates');
         for (const finding of entry.findings) console.log('  ' + finding.path + ':' + finding.line + ':' + finding.column + ' ' + finding.ruleId + ' [E0]');
@@ -122,7 +122,7 @@ try {
     const result = await verifyEvidenceFile(opts.target);
     if (opts.format === 'json') console.log(JSON.stringify(result, null, 2));
     else {
-      console.log(`Ghostproof 0.5 — BW001 evidence verification: ${result.passed ? 'PASS' : 'FAIL'}`);
+      console.log(`Ghostproof 0.6 — BW001 evidence verification: ${result.passed ? 'PASS' : 'FAIL'}`);
       console.log(result.passed ? 'Pinned fixtures match; deterministic bundled E2/E3 replay agrees with the supplied JSON.' : result.reason);
       console.log('No external-project bug was confirmed.');
     }
