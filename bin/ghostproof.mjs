@@ -17,13 +17,15 @@ Usage:
   ghostproof study [--format text|json]
 
 Options:
-  --max-files N       Maximum source files (default 2000)
-  --max-bytes N       Maximum bytes per source file (default 524288)
+  --max-files N       Maximum source files (scan/check only; default 2000)
+  --max-bytes N       Maximum bytes per source file (scan/check only; default 524288)
+  --fail-on MODE      none or candidates (scan/check only; default none)
   --output PATH       Write JSON evidence bundle (proof only; refuses overwrite)
   --help              Show this help
 
 Exit codes: 0 completed; 1 candidates found with --fail-on candidates
-            or experiment/proof failed; 2 invalid arguments or scan error.
+            or unsuccessful experiment/proof/verification;
+            2 invalid arguments or other CLI error.
 
 Only AST-based JavaScript/TypeScript candidate rules are shipped.
 E1 and E2/E3 demos execute only bundled, allowlisted fixtures.

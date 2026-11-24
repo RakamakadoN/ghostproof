@@ -32,7 +32,7 @@ npm run proof
 Demo summary:
 
 ```text
-Ghostproof 0.3 [TypeScript AST] | 2 files scanned | 2 E0 candidates | 0 confirmed
+Ghostproof 0.5 [TypeScript AST] | 2 files scanned | 2 E0 candidates | 0 confirmed
 ```
 
 Local scan of your project:
@@ -43,6 +43,8 @@ node ./bin/ghostproof.mjs scan /path/to/project --format json
 node ./bin/ghostproof.mjs check /path/to/project --fail-on candidates
 ```
 
+`scan` and `check` accept `--fail-on none|candidates`, `--max-files N` and `--max-bytes N`. These three options are scan-only, even when explicitly set to their defaults. `--format text|json` is available on all commands. `--output PATH` is proof-only.
+
 Built-in controlled E1 experiments (no target code executed):
 
 ```bash
@@ -51,7 +53,7 @@ node ./bin/ghostproof.mjs experiment GP002 --format json
 node ./bin/ghostproof.mjs experiment --all
 ```
 
-Verify a previously created **v0.3 BW001** JSON report with the v0.4 engine:
+Verify a previously created **v0.3 BW001** JSON report with Ghostproof v0.5:
 
 ```bash
 node ./bin/ghostproof.mjs proof BW001 --output ./bw001-evidence.json
@@ -123,7 +125,7 @@ The JSON scan report includes parser identity, findings, fingerprints, file-coun
 - No telemetry, cloud API calls, automatic fixes, or generated regression tests for external projects.
 - Custom `.forEach` methods, intentionally detached async callbacks, shadowed `Promise` names and other context can produce E0 signals without real project defects.
 - Symlinks, common dependency directories and files over 512 KiB are skipped; max 2,000 eligible files by default. Not a hostile-filesystem sandbox.
-- Exit `0`: success; `1`: optional candidate gate or failed bundled experiment/proof; `2`: CLI/scan error.
+- Exit `0`: success; `1`: optional candidate gate or unsuccessful bundled experiment, proof or evidence verification; `2`: invalid arguments or an error reported by the CLI.
 - A clean scan does **not** certify safety or absence of defects.
 
 ## Roadmap

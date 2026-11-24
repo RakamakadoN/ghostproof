@@ -62,3 +62,12 @@ for (const command of ['scan', 'check']) {
     assert.equal(JSON.parse(result.stdout).summary.candidates, 2);
   });
 }
+
+test('CLI help describes scan-only options and verification failure', () => {
+  const result = run('--help');
+  assert.equal(result.status, 0, result.stderr);
+  for (const option of ['--max-files', '--max-bytes', '--fail-on']) {
+    assert.ok(result.stdout.split('\n').some(line => line.includes(option) && line.includes('scan/check only')), option);
+  }
+  assert.match(result.stdout, /unsuccessful experiment\/proof\/verification/);
+});
