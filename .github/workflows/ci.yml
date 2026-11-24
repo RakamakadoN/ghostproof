@@ -74,3 +74,23 @@ jobs:
         run: node --test tests/cli.test.mjs
       - name: Check package contents without publishing
         run: npm pack --dry-run --ignore-scripts
+
+  comparative-contract:
+    name: Pinned before/after contract benchmark
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: 4f90aba66c4f0befbea7294be1bcb79d7e99a929
+          path: .benchmark-baseline
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm ci --prefix .benchmark-baseline --ignore-scripts
+      - name: Compare fixed baseline against current contract
+        run: node scripts/compare-baseline.mjs
