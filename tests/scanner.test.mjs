@@ -127,3 +127,48 @@ test('scanner never executes target source', async () => {
     await assert.rejects(() => access(flag), { code: 'ENOENT' });
   } finally { await rm(dir, { recursive: true, force: true }); }
 });
+
+test('scanPath rejects invalid limits for both file and directory inputs', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'ghostproof-limits-'));
+  try {
+    const file = path.join(dir, 'empty.js');
+    await writeFile(file, '');
+    for (const target of [dir, file]) {
+      for (const key of ['maxFiles', 'maxBytes']) {
+        for (const value of [0, -1, 1.5, NaN, Infinity, '2', Number.MAX_SAFE_INTEGER + 1]) {
+          await assert.rejects(() => scanPath(target, { [key]: value }), {
+            name: 'RangeError', message: key + ' must be a positive safe integer',
+          });
+        }
+      }
+    }
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});
+
+test('empty directory and empty source have distinct coverage counts', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'ghostproof-empty-'));
+  try {
+    const empty = await scanPath(dir, { maxFiles: 1, maxBytes: 1 });
+    assert.equal(empty.summary.visitedFiles, 0);
+    assert.equal(empty.summary.scannedFiles, 0);
+    const file = path.join(dir, 'empty.js');
+    await writeFile(file, '');
+    const report = await scanPath(file, { maxFiles: 1, maxBytes: 1 });
+    assert.equal(report.summary.visitedFiles, 1);
+    assert.equal(report.summary.scannedFiles, 1);
+    assert.equal(report.summary.candidates, 0);
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});
+
+test('scanPath accepts exact file and byte limits', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'ghostproof-boundary-'));
+  try {
+    await writeFile(path.join(dir, 'a.js'), '// é');
+    const report = await scanPath(dir, { maxFiles: 1, maxBytes: 5 });
+    assert.equal(report.summary.scannedFiles, 1);
+    assert.equal(report.summary.skippedLarge, 0);
+    const smaller = await scanPath(dir, { maxFiles: 1, maxBytes: 4 });
+    assert.equal(smaller.summary.scannedFiles, 0);
+    assert.equal(smaller.summary.skippedLarge, 1);
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});

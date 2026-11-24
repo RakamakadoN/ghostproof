@@ -141,6 +141,11 @@ export async function scanPath(target, options = {}) {
   const root = path.resolve(target);
   const maxFiles = options.maxFiles ?? 2000;
   const maxBytes = options.maxBytes ?? 512 * 1024;
+  for (const [name, value] of Object.entries({ maxFiles, maxBytes })) {
+    if (!Number.isSafeInteger(value) || value < 1) {
+      throw new RangeError(`${name} must be a positive safe integer`);
+    }
+  }
   const files = [];
   const summary = {
     visitedFiles: 0, scannedFiles: 0, skippedLarge: 0,
