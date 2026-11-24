@@ -35,6 +35,7 @@ function parse(argv) {
   if (!['scan', 'check', 'experiment', 'proof', 'verify', 'study'].includes(command)) throw new Error(`Unknown command: ${command}`);
   const opts = { command, target: '.', format: 'text', failOn: 'none' };
   let targetSet = false;
+  let failOnSet = false;
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     const key = arg.split('=')[0];
@@ -42,7 +43,7 @@ function parse(argv) {
       const val = arg.includes('=') ? arg.slice(key.length + 1) : args[++i];
       if (!val) throw new Error(`Missing value for ${key}`);
       if (key === '--format') opts.format = val;
-      if (key === '--fail-on') opts.failOn = val;
+      if (key === '--fail-on') { opts.failOn = val; failOnSet = true; }
       if (key === '--output') opts.output = val;
       if (key === '--max-files' || key === '--max-bytes') {
         if (!/^[1-9]\d*$/.test(val) || !Number.isSafeInteger(Number(val))) throw new Error(`Invalid positive integer for ${key}: ${val}`);
@@ -58,8 +59,8 @@ function parse(argv) {
   if (!['text', 'json'].includes(opts.format)) throw new Error('--format must be text or json');
   if (!['none', 'candidates'].includes(opts.failOn)) throw new Error('--fail-on must be none or candidates');
   if ((command === 'experiment' || command === 'proof' || command === 'verify' || command === 'study') &&
-      ('maxFiles' in opts || 'maxBytes' in opts || opts.failOn !== 'none')) {
-    throw new Error('Scan-only options cannot be used with experiment or proof');
+      ('maxFiles' in opts || 'maxBytes' in opts || failOnSet)) {
+    throw new Error('Scan-only options are only available with scan or check');
   }
   if (command !== 'proof' && 'output' in opts) throw new Error('--output is only available with proof');
   if (command === 'experiment' && !targetSet) throw new Error('Choose an experiment: GP001, GP002, or --all');
