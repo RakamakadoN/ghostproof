@@ -71,3 +71,14 @@ test('CLI help describes scan-only options and verification failure', () => {
   }
   assert.match(result.stdout, /unsuccessful experiment\/proof\/verification/);
 });
+
+test('release version and stable scan schema are distinct', () => {
+  const help = run('--help');
+  assert.equal(help.status, 0, help.stderr);
+  assert.match(help.stdout, /Ghostproof v0\.6/);
+  const result = run('scan', 'examples', '--format', 'json');
+  assert.equal(result.status, 0, result.stderr);
+  const report = JSON.parse(result.stdout);
+  assert.equal(report.tool.version, '0.6.0');
+  assert.equal(report.schemaVersion, '0.5');
+});

@@ -197,7 +197,7 @@ export async function scanPath(target, options = {}) {
   summary.candidates = findings.length;
   return {
     schemaVersion: '0.5',
-    tool: { name: 'ghostproof', version: '0.5.0', engine: 'typescript-ast' },
+    tool: { name: 'ghostproof', version: '0.6.0', engine: 'typescript-ast' },
     target: root,
     summary,
     findings,
