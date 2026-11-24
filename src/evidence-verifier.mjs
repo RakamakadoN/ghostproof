@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { isDeepStrictEqual } from 'node:util';
+import { isDeepStrictEqual, TextDecoder } from 'node:util';
 import { lstat, readFile } from 'node:fs/promises';
 import { readFileSync, lstatSync } from 'node:fs';
 import path from 'node:path';
@@ -91,7 +91,11 @@ export async function verifyEvidenceFile(inputPath) {
   const raw = await readFile(full);
   if (raw.byteLength > MAX_REPORT_BYTES) throw new Error('Evidence exceeds 512 KiB maximum.');
   let report;
-  try { report = JSON.parse(raw.toString('utf8')); }
+  try {
+    // Reject malformed encoding rather than silently replacing invalid bytes.
+    const decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
+    report = JSON.parse(decoder.decode(raw));
+  }
   catch { throw new Error('Evidence file is not valid UTF-8 JSON.'); }
   return verifyBundledEvidence(report, raw);
 }

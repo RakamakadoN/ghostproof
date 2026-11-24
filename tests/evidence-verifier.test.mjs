@@ -105,3 +105,26 @@ test('rejects malformed, oversized and symlinked report files without running re
     await assert.rejects(readFile(flag));
   } finally { await rm(dir, { recursive: true, force: true }); }
 });
+
+test('evidence files require well-formed UTF-8 before JSON parsing', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'ghostproof-utf8-'));
+  try {
+    const file = path.join(dir, 'encoding.json');
+    // JSON syntax is valid after lossy decoding, but its source bytes are not UTF-8.
+    for (const invalid of [[0xff], [0xc3, 0x28], [0xe2, 0x82]]) {
+      await writeFile(file, Buffer.concat([
+        Buffer.from('{"label":"'), Buffer.from(invalid), Buffer.from('"}'),
+      ]));
+      await assert.rejects(() => verifyEvidenceFile(file), /not valid UTF-8 JSON/);
+    }
+    // Valid non-ASCII and literal replacement characters are accepted as
+    // encoding; this envelope is still rejected by the ordinary schema guard.
+    await writeFile(file, JSON.stringify({ label: 'Клубок é \uFFFD' }));
+    const result = await verifyEvidenceFile(file);
+    assert.equal(result.passed, false);
+    assert.match(result.reason, /Unsupported or invalid evidence envelope/);
+    // Keep the existing behavior for a leading UTF-8 BOM.
+    await writeFile(file, Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from('{}')]));
+    await assert.rejects(() => verifyEvidenceFile(file), /not valid UTF-8 JSON/);
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});
