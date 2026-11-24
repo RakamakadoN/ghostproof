@@ -132,6 +132,10 @@ The JSON scan report includes parser identity, findings, fingerprints, file-coun
 
 See [changelog](CHANGELOG.md), [performance baseline](docs/PERFORMANCE.md), [platform smoke scope](docs/PLATFORM_COMPATIBILITY.md), and [comparative contract benchmark](docs/COMPARATIVE_BENCHMARK.md). The selected synthetic contract comparison improved from 12/40 to 40/40; this is not real-world detector accuracy. The evidence schemas remain unchanged.
 
+## Developer usability pilot
+
+The [developer evaluation protocol](docs/DEVELOPER_PILOT.md) and [participant worksheet](docs/DEVELOPER_PILOT_WORKSHEET.md) define a voluntary comparison of manual review and Ghostproof-assisted review. No participant outcomes have been collected yet. Use only owned or explicitly shareable inputs; do not publish private code or candidate findings.
+
 ## Roadmap
 
 1. Expanded, independently measured precision/recall benchmarks (the v0.4 pinned examples are an initial study, not quantified benchmark coverage).
