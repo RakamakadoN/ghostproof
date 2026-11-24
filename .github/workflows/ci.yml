@@ -53,3 +53,24 @@ jobs:
           name: ghostproof-pinned-e0
           path: pinned-e0-report.json
           retention-days: 7
+
+  platform-smoke:
+    name: Installation and CLI smoke (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install pinned dependencies
+        run: npm ci --ignore-scripts
+      - name: Validate command line contract
+        run: node --test tests/cli.test.mjs
+      - name: Check package contents without publishing
+        run: npm pack --dry-run --ignore-scripts
